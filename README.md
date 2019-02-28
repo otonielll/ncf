@@ -1,2 +1,2 @@
 # ncf
-impuetos y ncf dominicana
+impuestos y ncf, dominicana
