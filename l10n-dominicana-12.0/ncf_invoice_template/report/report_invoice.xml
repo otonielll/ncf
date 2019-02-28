@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
+        <xpath expr="/t[1]/t[1]/t[2]/address" position="replace"/>
+        <xpath expr="/t[1]/t[1]/t[2]/div[hasclass('mt16')]" position="replace"/>
+        <xpath expr="/t[1]/t[1]/div[1]/h2[1]" position="replace"/>
+        <xpath expr="/t/t/div/div[1]" position="replace">
+            <div class="row">
+                <div class="col-auto">
+                    <strong>
+                        <span t-field="o.company_id.partner_id.name"/>
+                    </strong>
+                    <br/>
+                    <span>
+                        <strong>RNC:</strong>
+                        <span t-field="o.company_id.vat"/>
+                    </span>
+                    <br/>
+                    <span>
+                        <strong>Fecha:</strong>
+                        <span t-field="o.date_invoice"/>
+                    </span>
+                    <br/>
+                    <span t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                        <strong>Vence:</strong>
+                        <span t-field="o.date_due"/>
+                    </span>
+                </div>
+                <div class="col-auto ml-auto">
+                    <div style="font-size: 18px">
+                        <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                            <strong>
+                                Factura de
+                                <span t-field="o.sale_fiscal_type"/>
+                            </strong>
+                        </span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
+                        <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
+                        <span t-if="o.type == 'in_refund'">NC de Proveedor</span>
+                        <span t-if="o.type == 'in_invoice'">Factura de Proveedor</span>
+                        <br/>
+                    </div>
+                    <strong>NCF:</strong>
+                    <span t-field="o.reference"/>
+                    <br/>
+                    <span t-if="(o.type == 'out_refund' or o.type == 'in_refund') and (o.origin_out != False)">
+                        <strong>NCF modificado:</strong>
+                        <span t-field="o.origin_out"/>
+                        <br/>
+                    </span>
+                    <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state == 'open' or o.state == 'paid')">
+                        <strong>Válida hasta:</strong>
+                        <span t-field="o.ncf_expiration_date"/>
+                    </span>
+                </div>
+            </div>
+
+            <div class="row mt32 mb32">
+                <div class="col-auto" t-if="o.partner_id.vat" name="invoice_partner_address">
+                    <t t-if="len(o.partner_id.vat) == 9">
+                        <strong>RNC cliente:</strong>
+                        <span t-field="o.partner_id.vat"/>
+                        <br/>
+                        <strong>Razón social:</strong>
+                        <t t-if="o.partner_id.parent_id">
+                            <span t-field="o.partner_id.parent_id.name"/>
+                            <br/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="o.partner_id.name"/>
+                            <br/>
+                        </t>
+                        <br/>
+                    </t>
+                    <t t-elif="len(o.partner_id.vat) == 11">
+                        <strong>Ced. cliente:</strong>
+                        <span t-field="o.partner_id.vat"/>
+                        <br/>
+                        <strong>Nombre:</strong>
+                        <t t-if="o.partner_id.parent_id">
+                            <span t-field="o.partner_id.parent_id.name"/>
+                            <br/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="o.partner_id.name"/>
+                            <br/>
+                        </t>
+                        <br/>
+                    </t>
+                    <t t-else="">
+                        <strong>ID cliente:</strong>
+                        <span t-field="o.partner_id.vat"/>
+                        <br/>
+                        <strong>Nombre:</strong>
+                        <t t-if="o.partner_id.parent_id">
+                            <span t-field="o.partner_id.parent_id.name"/>
+                            <br/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="o.partner_id.name"/>
+                            <br/>
+                        </t>
+                        <br/>
+                    </t>
+                </div>
+                <div class="col-auto" t-if="o.partner_id.vat == False" name="invoice_partner_address">
+                    <t>
+                        <strong>Nombre:</strong>
+                        <t t-if="o.partner_id.parent_id">
+                            <span t-field="o.partner_id.parent_id.name"/>
+                            <br/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="o.partner_id.name"/>
+                            <br/>
+                        </t>
+                        <br/>
+                    </t>
+                </div>
+                <div class="col-auto" t-if="o.partner_id.street" name="client_address">
+                    <strong>Dirección cliente:</strong>
+                    <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                </div>
+                <div class="col-auto" t-if="o.name" name="description">
+                    <strong>Descripción:</strong>
+                    <p t-field="o.name"/>
+                </div>
+                <div class="col-auto" t-if="o.origin" name="origin">
+                    <strong>Origen:</strong>
+                    <p t-field="o.origin"/>
+                </div>
+                <div class="col-auto" t-if="o.reference" name="reference">
+                    <strong>Factura No.:</strong>
+                    <p t-field="o.number"/>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']" position="replace">
+            <table class="table table-condensed" name="invoice_line_table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th class="hidden">Origen</th>
+                        <th class="text-right">Cantidad</th>
+                        <th class="text-right">Precio</th>
+                        <th t-if="display_discount" class="text-right">Desc.(%)</th>
+                        <th class="text-right">Impuestos</th>
+                        <th class="text-right">Valor</th>
+                    </tr>
+                </thead>
+                <tbody class="invoice_tbody">
+                    <tr t-foreach="o.invoice_line_ids" t-as="l">
+                        <t t-set="exempt_itbis" t-value="any([t for t in l.invoice_line_tax_ids if t.amount == 0.0])"/>
+                        <td>
+                            <span t-field="l.name"/>
+                        </td>
+                        <td class="hidden">
+                            <span t-field="l.origin"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="l.quantity"/>
+                            <span t-field="l.uom_id" groups="product.group_uom"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="l.price_unit"/>
+                        </td>
+                        <td t-if="display_discount" class="text-right">
+                            <span t-field="l.discount"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-esc="', '.join(map(lambda x: (x.description or x.name), l.invoice_line_tax_ids))"/>
+                        </td>
+                        <td class="text-right" id="subtotal">
+                            <span t-field="l.price_subtotal"
+                                t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            <t t-if="exempt_itbis">
+                                <span>
+                                    <b>E</b>
+                                </span>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr t-foreach="range(max(5-len(o.invoice_line_ids),0))" t-as="l">
+                        <td t-translation="off">&amp;nbsp;</td>
+                        <td class="hidden"/>
+                        <td/>
+                        <td/>
+                        <td t-if="display_discount"/>
+                        <td/>
+                        <td/>
+                    </tr>
+                </tbody>
+            </table>
+        </xpath>
+        <xpath expr="//div[@id='total']" position="after">
+            <div class="text-muted" style="float: right">
+                <span>
+                    <strong>Original:</strong>
+                    Cliente
+                </span>
+                <br/>
+                <span>
+                    <strong>Copia:</strong>
+                    Vendedor
+                </span>
+                <br/>
+                <br/>
+            </div>
+        </xpath>
+
+    </template>
+</odoo>
